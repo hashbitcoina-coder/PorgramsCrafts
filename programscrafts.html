@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProgramsCrafts | Custom C++ Graphical Software</title>
+  <meta name="description" content="ProgramsCrafts designs tailored C++ graphical applications for simulation, visualization, tooling, and interactive software delivery.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f5f2;
+      --panel: rgba(255, 255, 255, 0.78);
+      --panel-strong: rgba(255, 255, 255, 0.96);
+      --line: rgba(20, 20, 20, 0.08);
+      --line-strong: rgba(20, 20, 20, 0.14);
+      --text: #131313;
+      --muted: #5f5f67;
+      --accent: #2e445d;
+      --accent-soft: rgba(46, 68, 93, 0.12);
+      --shadow: 0 24px 80px rgba(16, 19, 24, 0.08);
+      --radius: 24px;
+      --content-width: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", "Segoe UI Variable", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.94), transparent 38%),
+        linear-gradient(180deg, #fbfbf8 0%, #f3f3ef 48%, #efefeb 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-image:
+        linear-gradient(rgba(17, 17, 17, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(17, 17, 17, 0.03) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.15));
+      animation: driftGrid 18s linear infinite;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background:
+        radial-gradient(circle at 20% 18%, rgba(121, 139, 160, 0.18), transparent 20%),
+        radial-gradient(circle at 80% 14%, rgba(45, 60, 82, 0.12), transparent 24%),
+        radial-gradient(circle at 50% 80%, rgba(120, 120, 120, 0.08), transparent 30%);
+      pointer-events: none;
+    }
+
+    @keyframes driftGrid {
+      0% { transform: translate3d(0, 0, 0); }
+      50% { transform: translate3d(-8px, -14px, 0); }
+      100% { transform: translate3d(0, 0, 0); }
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .shell {
+      width: min(var(--content-width), calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      background: rgba(245, 245, 242, 0.72);
+      border-bottom: 1px solid rgba(20, 20, 20, 0.06);
+    }
+
+    .nav-row {
+      min-height: 82px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .brand-lockup img {
+      width: 140px;
+      height: auto;
+      mix-blend-mode: multiply;
+      filter: saturate(0.82) contrast(1.03);
+    }
+
+    .brand-copy {
+      min-width: 0;
+    }
+
+    .brand-copy strong {
+      display: block;
+      font-size: 0.96rem;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-copy span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 18px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .nav-links a {
+      position: relative;
+      padding-bottom: 2px;
+      transition: color 180ms ease;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--text);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 180ms ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus-visible {
+      color: var(--text);
+    }
+
+    .nav-links a:hover::after,
+    .nav-links a:focus-visible::after {
+      transform: scaleX(1);
+    }
+
+    .hero {
+      padding: 56px 0 44px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+      gap: 40px;
+      align-items: center;
+      min-height: 82vh;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.74);
+      border: 1px solid rgba(20, 20, 20, 0.07);
+      color: var(--muted);
+      font-size: 0.88rem;
+      box-shadow: 0 10px 30px rgba(18, 18, 18, 0.05);
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 8px rgba(46, 68, 93, 0.08);
+    }
+
+    h1 {
+      margin: 22px 0 16px;
+      font-size: clamp(3rem, 7vw, 6.2rem);
+      line-height: 0.95;
+      font-weight: 800;
+      letter-spacing: 0;
+      max-width: 10ch;
+    }
+
+    .hero-copy p {
+      margin: 0;
+      max-width: 62ch;
+      font-size: 1.08rem;
+      line-height: 1.75;
+      color: var(--muted);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 22px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-weight: 700;
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .button.primary {
+      color: #fff;
+      background: linear-gradient(135deg, #14171c, #2c435a);
+      box-shadow: 0 18px 40px rgba(24, 31, 40, 0.18);
+    }
+
+    .button.secondary {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.84);
+      border-color: rgba(20, 20, 20, 0.08);
+    }
+
+    .button:hover,
+    .button:focus-visible {
+      transform: translateY(-2px);
+    }
+
+    .hero-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 32px;
+    }
+
+    .stat {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.64);
+      border: 1px solid rgba(20, 20, 20, 0.06);
+      box-shadow: 0 16px 36px rgba(12, 14, 18, 0.06);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 620px;
+      display: grid;
+      align-items: center;
+    }
+
+    .visual-frame {
+      position: relative;
+      width: min(100%, 520px);
+      margin-left: auto;
+      padding: 22px;
+      border-radius: 30px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(244, 245, 248, 0.82));
+      border: 1px solid rgba(20, 20, 20, 0.08);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .visual-frame::before,
+    .visual-frame::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+
+    .visual-frame::before {
+      inset: auto -18% 16% 36%;
+      height: 160px;
+      background: radial-gradient(circle, rgba(43, 69, 96, 0.22), transparent 68%);
+      animation: pulse 7s ease-in-out infinite;
+    }
+
+    .visual-frame::after {
+      inset: 12% 44% auto -8%;
+      height: 120px;
+      background: radial-gradient(circle, rgba(148, 154, 162, 0.18), transparent 70%);
+      animation: pulse 6s ease-in-out infinite reverse;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.12); opacity: 0.45; }
+    }
+
+    .logo-panel {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid rgba(20, 20, 20, 0.06);
+    }
+
+    .logo-panel img {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      object-position: center;
+      filter: saturate(0.9) contrast(1.04);
+    }
+
+    .floating-note {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      max-width: 240px;
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(19, 19, 19, 0.92);
+      color: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 18px 40px rgba(10, 10, 10, 0.22);
+      transform: translateY(0);
+      animation: floatNote 4.6s ease-in-out infinite;
+    }
+
+    @keyframes floatNote {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .floating-note strong {
+      display: block;
+      font-size: 0.92rem;
+    }
+
+    .floating-note span {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.86rem;
+      line-height: 1.55;
+      color: rgba(255, 255, 255, 0.68);
+    }
+
+    section {
+      padding: 38px 0 34px;
+      scroll-margin-top: 96px;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+      gap: 30px;
+      align-items: end;
+      margin-bottom: 26px;
+    }
+
+    .section-label {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 0.83rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.1rem);
+      line-height: 1.02;
+      max-width: 12ch;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 1rem;
+      max-width: 58ch;
+      justify-self: end;
+    }
+
+    .grid-3,
+    .grid-4,
+    .grid-2 {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .card {
+      position: relative;
+      padding: 26px;
+      border-radius: 22px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: 0 18px 46px rgba(14, 17, 21, 0.06);
+      overflow: hidden;
+      transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, rgba(46, 68, 93, 0.44), transparent);
+      transform: translateX(-100%);
+      transition: transform 320ms ease;
+    }
+
+    .card:hover,
+    .card:focus-within {
+      transform: translateY(-6px);
+      border-color: var(--line-strong);
+      box-shadow: 0 24px 52px rgba(14, 17, 21, 0.08);
+    }
+
+    .card:hover::before,
+    .card:focus-within::before {
+      transform: translateX(0);
+    }
+
+    .card-kicker {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .card h3 {
+      margin: 18px 0 10px;
+      font-size: 1.26rem;
+      line-height: 1.15;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 0.96rem;
+    }
+
+    .process-list,
+    .why-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .process-step,
+    .why-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: start;
+      padding: 18px 0;
+      border-top: 1px solid rgba(20, 20, 20, 0.08);
+    }
+
+    .process-step:first-child,
+    .why-item:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .step-number {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(20, 20, 20, 0.06);
+      color: var(--text);
+      font-weight: 800;
+      font-size: 0.88rem;
+      flex-shrink: 0;
+    }
+
+    .step-copy strong,
+    .why-copy strong {
+      display: block;
+      font-size: 1rem;
+    }
+
+    .step-copy span,
+    .why-copy span {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 0.94rem;
+    }
+
+    .capability-panel {
+      padding: 26px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(248, 248, 246, 0.76));
+      border: 1px solid rgba(20, 20, 20, 0.08);
+      box-shadow: var(--shadow);
+    }
+
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(20, 20, 20, 0.05);
+      border: 1px solid rgba(20, 20, 20, 0.06);
+      color: #30333a;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .compare-strip {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .compare-strip article {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(20, 20, 20, 0.07);
+    }
+
+    .compare-strip strong {
+      display: block;
+      font-size: 0.98rem;
+      margin-bottom: 8px;
+    }
+
+    .compare-strip span {
+      display: block;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 0.9rem;
+    }
+
+    .project-card {
+      display: grid;
+      gap: 18px;
+    }
+
+    .project-media {
+      position: relative;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid rgba(20, 20, 20, 0.08);
+      background: #0f1216;
+      aspect-ratio: 16 / 10;
+    }
+
+    .project-media video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .project-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .project-bar span {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(20, 20, 20, 0.06);
+      color: #3c4048;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .project-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .project-metrics div {
+      padding-top: 12px;
+      border-top: 1px solid rgba(20, 20, 20, 0.08);
+    }
+
+    .project-metrics strong {
+      display: block;
+      font-size: 1rem;
+    }
+
+    .project-metrics span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 18px;
+    }
+
+    .contact-card strong {
+      display: block;
+      font-size: 1.06rem;
+      margin-bottom: 8px;
+    }
+
+    .contact-line {
+      display: block;
+      margin-top: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .cta-footer {
+      padding: 42px 0 66px;
+    }
+
+    .cta-box {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: center;
+      padding: 28px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(20, 23, 28, 0.96), rgba(37, 53, 71, 0.94));
+      color: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 28px 60px rgba(18, 24, 31, 0.18);
+    }
+
+    .cta-box h2 {
+      max-width: none;
+      font-size: clamp(1.9rem, 3.5vw, 3rem);
+    }
+
+    .cta-box p {
+      margin: 10px 0 0;
+      color: rgba(255, 255, 255, 0.68);
+      line-height: 1.7;
+      max-width: 56ch;
+    }
+
+    .button.light {
+      background: rgba(255, 255, 255, 0.96);
+      color: #121416;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity 560ms ease, transform 560ms ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1100px) {
+      .hero-grid,
+      .section-head,
+      .grid-3,
+      .grid-4,
+      .grid-2,
+      .contact-grid,
+      .cta-box,
+      .compare-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head p {
+        justify-self: start;
+      }
+
+      .hero-visual {
+        min-height: auto;
+      }
+
+      .visual-frame {
+        margin-left: 0;
+      }
+
+      .cta-box .button {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .shell {
+        width: min(100% - 24px, var(--content-width));
+      }
+
+      .nav-row {
+        min-height: 72px;
+        align-items: flex-start;
+        flex-direction: column;
+        justify-content: center;
+        padding: 14px 0;
+      }
+
+      .nav-links {
+        gap: 12px 16px;
+        justify-content: flex-start;
+      }
+
+      .brand-lockup img {
+        width: 118px;
+      }
+
+      .hero {
+        padding-top: 34px;
+      }
+
+      h1 {
+        max-width: 9ch;
+      }
+
+      .hero-meta,
+      .project-metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .visual-frame {
+        padding: 16px;
+      }
+
+      .card,
+      .capability-panel,
+      .cta-box {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell nav-row">
+      <a class="brand-lockup" href="#top" aria-label="ProgramsCrafts home">
+        <img src="assets/programscrafts-logo.jpeg" alt="ProgramsCrafts logo">
+        <div class="brand-copy">
+          <strong>ProgramsCrafts</strong>
+          <span>Tailored C++ graphical software</span>
+        </div>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#services">Services</a>
+        <a href="#process">Process</a>
+        <a href="#capabilities">Capabilities</a>
+        <a href="#why-us">Why Us</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="shell hero-grid">
+        <div class="hero-copy reveal">
+          <div class="eyebrow">Custom desktop graphics for demanding workflows</div>
+          <h1>ProgramsCrafts builds C++ software that feels made for the job.</h1>
+          <p>
+            ProgramsCrafts creates professional graphical programs tailored to each customer’s exact needs,
+            from simulation tools and data visualizers to interactive control panels, CAD-style viewers, and
+            high-performance OpenGL applications that need to look sharp and behave reliably.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#projects">See past work</a>
+            <a class="button secondary" href="#why-us">Why clients choose us</a>
+          </div>
+          <div class="hero-meta" aria-label="Business highlights">
+            <div class="stat">
+              <strong>Custom-first</strong>
+              <span>Every solution is shaped around the client’s workflow, hardware, and delivery goals.</span>
+            </div>
+            <div class="stat">
+              <strong>C++ focus</strong>
+              <span>Built for speed, native control, and long-term maintainability in production environments.</span>
+            </div>
+            <div class="stat">
+              <strong>Visual rigor</strong>
+              <span>Clear interaction, stable rendering, and polished interfaces for professional use.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual reveal">
+          <div class="visual-frame">
+            <div class="logo-panel">
+              <img src="assets/programscrafts-logo.jpeg" alt="ProgramsCrafts logo presentation">
+            </div>
+            <div class="floating-note">
+              <strong>Designed for practical delivery</strong>
+              <span>Minimal visual language, strong engineering focus, and interfaces that help users work faster.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="services">
+      <div class="shell">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">Section 2</p>
+            <h2>Services built around real technical requirements.</h2>
+          </div>
+          <p>
+            ProgramsCrafts focuses on software that must do something concrete: render accurately, respond smoothly,
+            integrate with existing systems, and support users who depend on it every day.
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <article class="card reveal">
+            <span class="card-kicker">Visualization</span>
+            <h3>Interactive graphics applications</h3>
+            <p>Custom OpenGL and C++ programs for simulation displays, technical demos, data exploration, and real-time rendering.</p>
+          </article>
+          <article class="card reveal">
+            <span class="card-kicker">Tooling</span>
+            <h3>Desktop software for specialist workflows</h3>
+            <p>Purpose-built programs for internal operations, research, training, calibration, inspection, or engineering review.</p>
+          </article>
+          <article class="card reveal">
+            <span class="card-kicker">Optimization</span>
+            <h3>Performance-focused system design</h3>
+            <p>Careful native implementation for responsive interfaces, efficient rendering pipelines, and dependable long-running use.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="process">
+      <div class="shell">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">Section 3</p>
+            <h2>A delivery process that stays clear from brief to handoff.</h2>
+          </div>
+          <p>
+            Each project moves through a practical sequence so the final program is aligned with what the customer
+            actually needs, not just what looked good in an early concept.
+          </p>
+        </div>
+
+        <div class="grid-2">
+          <article class="card reveal">
+            <span class="card-kicker">Workflow</span>
+            <div class="process-list">
+              <div class="process-step">
+                <div class="step-number">01</div>
+                <div class="step-copy">
+                  <strong>Requirement mapping</strong>
+                  <span>Identify the intended users, the graphical workload, the expected outputs, and the hardware environment.</span>
+                </div>
+              </div>
+              <div class="process-step">
+                <div class="step-number">02</div>
+                <div class="step-copy">
+                  <strong>Prototype and visual direction</strong>
+                  <span>Translate the brief into a working technical concept with layout, rendering approach, and interaction structure.</span>
+                </div>
+              </div>
+              <div class="process-step">
+                <div class="step-number">03</div>
+                <div class="step-copy">
+                  <strong>Implementation and refinement</strong>
+                  <span>Build the application, tune responsiveness, validate the visuals, and adapt the software around real feedback.</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card reveal">
+            <span class="card-kicker">Outcome</span>
+            <h3>Software that is usable, maintainable, and client-specific.</h3>
+            <p>
+              The goal is not generic software dressed up with branding. It is a focused program designed around the
+              actual use case, whether that means accuracy, speed, clarity, operator confidence, or a strong visual
+              presentation for a customer-facing experience.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="capabilities">
+      <div class="shell">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">Section 4</p>
+            <h2>Technical coverage for software that has to perform under pressure.</h2>
+          </div>
+          <p>
+            ProgramsCrafts can support applications that combine interface design, low-level graphics, rendering logic,
+            engineering data, and specialized interaction models inside a native C++ stack.
+          </p>
+        </div>
+
+        <div class="capability-panel reveal">
+          <div class="grid-2">
+            <div>
+              <span class="card-kicker">Core stack</span>
+              <div class="tag-cloud">
+                <span class="tag">C++</span>
+                <span class="tag">OpenGL</span>
+                <span class="tag">GLSL</span>
+                <span class="tag">Desktop UI</span>
+                <span class="tag">3D Interaction</span>
+                <span class="tag">Simulation Views</span>
+                <span class="tag">Native Performance</span>
+                <span class="tag">Custom Tools</span>
+              </div>
+            </div>
+            <div>
+              <span class="card-kicker">Typical use cases</span>
+              <div class="tag-cloud">
+                <span class="tag">Scientific visualization</span>
+                <span class="tag">Industrial HMIs</span>
+                <span class="tag">Training software</span>
+                <span class="tag">Rendering demos</span>
+                <span class="tag">Data dashboards</span>
+                <span class="tag">Model viewers</span>
+                <span class="tag">Simulation frontends</span>
+                <span class="tag">Interactive explainers</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="compare-strip">
+            <article>
+              <strong>Built to fit</strong>
+              <span>Programs are tailored around the actual workflow, rather than forcing the client into an off-the-shelf template.</span>
+            </article>
+            <article>
+              <strong>Built to scale</strong>
+              <span>Architecture choices favor clean extension when a prototype becomes an internal platform or product layer.</span>
+            </article>
+            <article>
+              <strong>Built to present well</strong>
+              <span>Visual polish matters when the software will be shown to customers, teams, or stakeholders.</span>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="why-us">
+      <div class="shell">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">Section 5</p>
+            <h2>Why clients choose ProgramsCrafts.</h2>
+          </div>
+          <p>
+            The value is not only in writing C++ code. It is in turning a technical need into a professional graphical
+            application that makes sense for the user, the business, and the intended environment.
+          </p>
+        </div>
+
+        <div class="grid-2">
+          <article class="card reveal">
+            <span class="card-kicker">Why us</span>
+            <div class="why-list">
+              <div class="why-item">
+                <div class="step-number">A</div>
+                <div class="why-copy">
+                  <strong>Tailored work, not recycled templates</strong>
+                  <span>Every solution is shaped around the customer’s problem space, brand, performance envelope, and delivery context.</span>
+                </div>
+              </div>
+              <div class="why-item">
+                <div class="step-number">B</div>
+                <div class="why-copy">
+                  <strong>Engineering and presentation in the same build</strong>
+                  <span>ProgramsCrafts cares about correctness and clarity together, so software can work well and still present professionally.</span>
+                </div>
+              </div>
+              <div class="why-item">
+                <div class="step-number">C</div>
+                <div class="why-copy">
+                  <strong>Native performance for demanding visuals</strong>
+                  <span>C++ and graphics-focused implementation keep complex rendering, custom interaction, and specialized tooling responsive.</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card reveal">
+            <span class="card-kicker">Client value</span>
+            <h3>Clear outcomes for teams that need something specific.</h3>
+            <p>
+              When the requirement is unusual, technical, or visually demanding, generic web tooling often becomes a poor fit.
+              ProgramsCrafts fills that gap with software that is purposeful, direct, and engineered for the exact scenario.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects">
+      <div class="shell">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">Section 6</p>
+            <h2>Past projects and tailored solutions.</h2>
+          </div>
+          <p>
+            Example engagements span simulation, visualization, and custom operational software where C++ graphics
+            made the product more useful, more responsive, or more persuasive.
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <article class="card project-card reveal">
+            <span class="card-kicker">Graphical OpenGL program of the solar system</span>
+            <div class="project-media">
+              <video controls muted loop playsinline preload="metadata">
+                <source src="assets/programscrafts-project-1.mp4" type="video/mp4">
+              </video>
+            </div>
+            <h3>Interactive solar system visualization</h3>
+            <p>A custom C++ and OpenGL program that presents the solar system as an explorable graphical scene with real-time rendering, orbital structure, and smooth navigation.</p>
+            <div class="project-bar">
+              <span>C++</span>
+              <span>OpenGL</span>
+              <span>3D navigation</span>
+            </div>
+            <div class="project-metrics">
+              <div>
+                <strong>Planetary rendering</strong>
+                <span>Graphical representation of planets, spacing, and orbital relationships.</span>
+              </div>
+              <div>
+                <strong>Interactive control</strong>
+                <span>Smooth viewing and scene movement for inspection and presentation.</span>
+              </div>
+              <div>
+                <strong>Native performance</strong>
+                <span>Responsive rendering suited to real-time desktop graphics workloads.</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card project-card reveal">
+            <span class="card-kicker">Scientifically accurate ray traced black hole simulation</span>
+            <div class="project-media">
+              <video controls muted loop playsinline preload="metadata">
+                <source src="assets/programscrafts-project-2.mp4" type="video/mp4">
+              </video>
+            </div>
+            <h3>Gargantua-style black hole renderer</h3>
+            <p>A high-impact visualization of a scientifically motivated black hole with strong gravitational lensing, accretion-disk glow, photon bending, and mouse-driven viewing.</p>
+            <div class="project-bar">
+              <span>Ray tracing</span>
+              <span>Photon bending</span>
+              <span>OpenGL shader work</span>
+            </div>
+            <div class="project-metrics">
+              <div>
+                <strong>Scientific grounding</strong>
+                <span>Built around physically motivated light bending near the event horizon.</span>
+              </div>
+              <div>
+                <strong>Cinematic look</strong>
+                <span>Visually tuned to resemble the Gargantua black hole from Interstellar.</span>
+              </div>
+              <div>
+                <strong>Interactive view</strong>
+                <span>Mouse-based orbit controls let users inspect the black hole from different angles.</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="shell">
+        <div class="section-head reveal">
+          <div>
+            <p class="section-label">Section 7</p>
+            <h2>Contact ProgramsCrafts for custom C++ graphical software.</h2>
+          </div>
+          <p>
+            Reach out with the kind of program you need, the target users, and the visual or performance goals the software has to meet.
+          </p>
+        </div>
+
+        <div class="contact-grid">
+          <article class="card contact-card reveal">
+            <span class="card-kicker">Direct contact</span>
+            <h3>Business contact details</h3>
+            <p>ProgramsCrafts develops tailored C++ graphical programs for simulations, technical viewers, internal tools, and client-facing visual software.</p>
+            <a class="contact-line" href="mailto:programscraftsbusiness@gmail.com">programscraftsbusiness@gmail.com</a>
+            <a class="contact-line" href="tel:+918855996200">+91 8855996200</a>
+          </article>
+
+          <article class="card contact-card reveal">
+            <span class="card-kicker">Project brief</span>
+            <strong>Useful details to include</strong>
+            <p>Share the application type, the platform, the interactions you need, any performance constraints, and references that match the visual direction you want.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="cta-footer">
+    <div class="shell">
+      <div class="cta-box reveal">
+        <div>
+          <h2>Need a graphical C++ program built for a specific job?</h2>
+          <p>ProgramsCrafts develops custom software for organizations that need something more precise than a generic application stack.</p>
+        </div>
+        <a class="button light" href="mailto:programscraftsbusiness@gmail.com">Start a project conversation</a>
+      </div>
+      <p class="footer-note">ProgramsCrafts | Tailored C++ graphical software for custom business and technical needs.</p>
+    </div>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+        }
+      });
+    }, {
+      threshold: 0.16,
+      rootMargin: "0px 0px -40px 0px"
+    });
+
+    document.querySelectorAll(".reveal").forEach((element, index) => {
+      element.style.transitionDelay = `${Math.min(index * 40, 240)}ms`;
+      observer.observe(element);
+    });
+  </script>
+</body>
+</html>
